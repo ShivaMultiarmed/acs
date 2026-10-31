@@ -1,0 +1,28 @@
+services:
+  app:
+    ports:
+      - "80:9999"
+    networks:
+      acs-network:
+        aliases:
+          - acs-app
+  db:
+    ports:
+      - "5432:5432"
+    networks:
+      acs-network:
+        aliases:
+          - acs-db
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+
+networks:
+  acs-network:
+    driver: bridge
+    ipam:
+      config:
+        subnet: 172.16.100.0/29
+        gateway: 172.16.100.1
+
+volumes:
+  db_volume:
