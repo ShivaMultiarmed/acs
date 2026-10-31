@@ -16,5 +16,7 @@ add_executable(${PROJECT_NAME} main.cpp
         repository/InteractionRepository.cpp
         repository/InteractionRepository.h
         utils.h
-        utils.cpp)
+        utils.cpp
+        service/InteractionService.cpp
+        service/InteractionService.h)
 target_link_libraries(${PROJECT_NAME} PRIVATE pqxx_static)

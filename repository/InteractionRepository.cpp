@@ -4,29 +4,32 @@
 #include "../utils.h"
 #include "pqxx/nontransaction.hxx"
 
-InteractionRepository::InteractionRepository(std::shared_ptr<pqxx::connection> con) {
-    this->con = con;
+InteractionRepository::InteractionRepository(
+    std::shared_ptr<pqxx::connection> con
+) : con(con) {
 }
 
-bool InteractionRepository::interact(
-    const uint64_t *userId,
-    const uint64_t objectId,
-    const InteractionFailure *failure
-) const {
+Interaction &InteractionRepository::interact(Interaction &interaction) const {
     pqxx::nontransaction non(*con);
-    const char *userIdArgument = userId ? std::to_string(*userId).c_str() : nullptr;
-    const char *failureArgument = failure ? toString(*failure).c_str() : nullptr;
-    const auto now = clock.now();
-    const time_t millis = std::chrono::system_clock::to_time_t(now);
-    const tm *utcTime = gmtime(&millis);
-    std::stringstream dateTime;
-    dateTime << std::put_time(utcTime, "%Y-%m-%dT%H:%M:%SZ");
-    try {
-        non.exec_params1(
-        "INSERT INTO interactions (user_id, object_id, date_time, failure) VALUES ($1, $2, $3, $4);",
-        userIdArgument, objectId, dateTime.str(), failureArgument);
-        return true;
-    } catch (pqxx::unexpected_rows &e) {
-        return false;
-    }
+    const char *failureArgument = interaction.failure == (InteractionFailure) NULL
+                                      ? toString(interaction.failure).c_str()
+                                      : nullptr;
+    const std::string now = toString(clock.now());
+    pqxx::row row = non.exec_params1(
+        "INSERT INTO interactions (worker_id, object_id, date_time, failure) VALUES ($1, $2, $3, $4);",
+        interaction.workerId, interaction.objectId, now, failureArgument);
+    interaction.id = row["id"].as<uint64_t>();
+    return interaction;
+}
+
+Interaction &InteractionRepository::getLastByUserIdAndObjectId(
+    const uint64_t userId,
+    const uint64_t objectId
+) const {
+    // TODO: check if the user and the object even exist
+    pqxx::nontransaction non(*con);
+    std::string query = R"(SELECT id, worker_id, object_id, date_time, interaction_type, failure FROM interactions
+    WHERE userId = $1 AND object_id = $2 ORDER BY date_time DESC;)";
+    pqxx::row row = non.exec_params1(query, userId, objectId);
+    return mapToInteraction(row);
 }

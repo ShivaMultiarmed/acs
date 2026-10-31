@@ -1,8 +1,7 @@
 CREATE TABLE "workers" (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     first_name VARCHAR(30) NOT NULL,
-    last_name VARCHAR(30) NOT NULL,
-    code CHAR(24) NOT NULL UNIQUE
+    last_name VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE objects (
@@ -14,6 +13,7 @@ CREATE TABLE objects (
 CREATE TABLE "permissions" (
     worker_id BIGINT NOT NULL,
     object_id BIGINT NOT NULL,
+    code CHAR(24) NOT NULL UNIQUE
     PRIMARY KEY (worker_id, object_id),
     CONSTRAINT "permissions_object_id"
         FOREIGN KEY (object_id)
