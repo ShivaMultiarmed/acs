@@ -14,7 +14,7 @@ std::string toString(const InteractionFailure failure);
 
 Interaction& mapToInteraction(const pqxx::row &row);
 
-uint64_t toMillis(const std::chrono::time_point<std::chrono::system_clock> &point);
+uint64_t to_millis(const std::chrono::time_point<std::chrono::system_clock> &point);
 
 std::string &toDateTimeString(const uint64_t millis);
 

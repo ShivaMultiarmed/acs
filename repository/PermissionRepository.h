@@ -1,5 +1,5 @@
+#pragma once
 #include <memory>
-
 #include "pqxx/connection.hxx"
 
 class PermissionRepository {
@@ -7,7 +7,7 @@ class PermissionRepository {
     std::hash<std::string> hasher;
 public:
     explicit PermissionRepository(std::shared_ptr<pqxx::connection> con);
-    bool hasPermission(
+    bool has_permission(
         const uint64_t userId,
         const uint64_t objectId,
         const std::string code

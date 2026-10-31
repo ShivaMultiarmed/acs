@@ -9,7 +9,7 @@ std::string toString(const InteractionFailure failure) {
     }
 }
 
-uint64_t toMillis(const std::chrono::time_point<std::chrono::system_clock> &point) {
+uint64_t to_millis(const std::chrono::time_point<std::chrono::system_clock> &point) {
     return std::chrono::system_clock::to_time_t(point);
 }
 
@@ -23,16 +23,16 @@ std::string &toDateTimeString(const uint64_t millis) {
 }
 
 std::string& toString(const std::chrono::time_point<std::chrono::system_clock> &point) {
-    time_t millis = toMillis(point);
+    time_t millis = to_millis(point);
     return toDateTimeString(millis);
 }
 
 Interaction & mapToInteraction(const pqxx::row &row) {
     Interaction interaction{};
     interaction.id = row["id"].as<uint64_t>();
-    interaction.workerId = row["worker_id"].as<uint64_t>();
-    interaction.objectId = row["object_id"].as<uint64_t>();
-    interaction.dateTime = row["date_time"].as<uint64_t>();
+    interaction.worker_id = row["worker_id"].as<uint64_t>();
+    interaction.object_id = row["object_id"].as<uint64_t>();
+    interaction.date_time = row["date_time"].as<uint64_t>();
     // TODO map enums
     return interaction;
 }

@@ -6,7 +6,7 @@ PermissionRepository::PermissionRepository(std::shared_ptr<pqxx::connection> con
     this -> con = con;
 }
 
-bool PermissionRepository::hasPermission(
+bool PermissionRepository::has_permission(
     const uint64_t userId,
     const uint64_t objectId,
     const std::string code
@@ -14,7 +14,7 @@ bool PermissionRepository::hasPermission(
     if (code.size() != 24) return false;
     pqxx::nontransaction transaction(*con);
     try {
-        pqxx::row row = transaction.exec_params1(
+        pqxx::row row = transaction.exec_prepared1(
             "SELECT code FROM permissions WHERE user_id = $1 AND object_id = $2;", userId, objectId);
         pqxx::field field = row["code"];
         auto codeHash = field.as<std::string>(); // TODO: store real hash

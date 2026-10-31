@@ -18,5 +18,15 @@ add_executable(${PROJECT_NAME} main.cpp
         utils.h
         utils.cpp
         service/InteractionService.cpp
-        service/InteractionService.h)
+        service/InteractionService.h
+        endpoints/interaction_endpoints.h
+        endpoints/interactions_endpoints.cpp
+        repository/ObjectRepository.cpp
+        repository/ObjectRepository.h)
 target_link_libraries(${PROJECT_NAME} PRIVATE pqxx_static)
+
+find_package(httplib CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE pqxx_static httplib::httplib)
+
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)

@@ -1,10 +1,10 @@
+#pragma once
 #include <chrono>
 #include <memory>
-
 #include "pqxx/connection.hxx"
 
 enum class InteractionFailure : int {
-    NOT_AUTHENTICATED, FORBIDDEN
+    NOT_AUTHENTICATED, NOT_FOUND, FORBIDDEN
 };
 
 enum class InteractionType : int {
@@ -12,7 +12,7 @@ enum class InteractionType : int {
 };
 
 struct Interaction {
-    uint64_t id, workerId, objectId, dateTime;
+    uint64_t id, worker_id, object_id, date_time;
     InteractionType type;
     InteractionFailure failure;
 };

@@ -1,2 +1,2 @@
-cmake-build-debug
-third_party
+cmake-build-debug/**
+third_party/**

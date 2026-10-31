@@ -1,5 +1,5 @@
 {
   "name": "acs",
   "version": "0.1.0",
-  "dependencies": [ "libpq" ]
+  "dependencies": [ "libpq", "cpp-httplib", "nlohmann-json" ]
 }

@@ -15,9 +15,9 @@ Interaction &InteractionRepository::interact(Interaction &interaction) const {
                                       ? toString(interaction.failure).c_str()
                                       : nullptr;
     const std::string now = toString(clock.now());
-    pqxx::row row = non.exec_params1(
+    pqxx::row row = non.exec_prepared1(
         "INSERT INTO interactions (worker_id, object_id, date_time, failure) VALUES ($1, $2, $3, $4);",
-        interaction.workerId, interaction.objectId, now, failureArgument);
+        interaction.worker_id, interaction.object_id, now, failureArgument);
     interaction.id = row["id"].as<uint64_t>();
     return interaction;
 }
@@ -26,10 +26,9 @@ Interaction &InteractionRepository::getLastByUserIdAndObjectId(
     const uint64_t userId,
     const uint64_t objectId
 ) const {
-    // TODO: check if the user and the object even exist
     pqxx::nontransaction non(*con);
     std::string query = R"(SELECT id, worker_id, object_id, date_time, interaction_type, failure FROM interactions
     WHERE userId = $1 AND object_id = $2 ORDER BY date_time DESC;)";
-    pqxx::row row = non.exec_params1(query, userId, objectId);
+    pqxx::row row = non.exec_prepared1(query, userId, objectId);
     return mapToInteraction(row);
 }
