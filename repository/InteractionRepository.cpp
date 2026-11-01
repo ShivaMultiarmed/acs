@@ -7,6 +7,7 @@
 InteractionRepository::InteractionRepository(
     std::shared_ptr<pqxx::connection> con
 ) : con(con) {
+    clock = std::chrono::system_clock();
 }
 
 Interaction &InteractionRepository::interact(Interaction &interaction) const {
@@ -22,7 +23,7 @@ Interaction &InteractionRepository::interact(Interaction &interaction) const {
     return interaction;
 }
 
-Interaction &InteractionRepository::getLastByUserIdAndObjectId(
+Interaction InteractionRepository::getLastByUserIdAndObjectId(
     const uint64_t userId,
     const uint64_t objectId
 ) const {

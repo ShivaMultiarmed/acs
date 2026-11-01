@@ -1,12 +1,8 @@
-cmake_minimum_required(VERSION 4.3)
-set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+cmake_minimum_required(VERSION 3.22)
 project(acs LANGUAGES C CXX)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(SKIP_BUILD_TEST ON CACHE BOOL "" FORCE)
-set(SKIP_PQXX_SHARED ON CACHE BOOL "" FORCE)
-add_subdirectory(third_party/libpqxx)
 
 add_executable(${PROJECT_NAME} main.cpp
         repository/PermissionRepository.cpp
@@ -23,10 +19,14 @@ add_executable(${PROJECT_NAME} main.cpp
         endpoints/interactions_endpoints.cpp
         repository/ObjectRepository.cpp
         repository/ObjectRepository.h)
-target_link_libraries(${PROJECT_NAME} PRIVATE pqxx_static)
 
-find_package(httplib CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE pqxx_static httplib::httplib)
+find_package(Threads REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+
+find_package(PkgConfig MODULE REQUIRED)
+pkg_check_modules(PQXX REQUIRED IMPORTED_TARGET libpqxx)
+pkg_check_modules(HTTPLIB REQUIRED IMPORTED_TARGET cpp-httplib)
+target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::PQXX PkgConfig::HTTPLIB)
 
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)

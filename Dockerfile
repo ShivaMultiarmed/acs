@@ -3,7 +3,7 @@ FROM ubuntu:22.04 AS build
 RUN apt update \
     && apt install -y --no-install-recommends \
         build-essential cmake pkg-config \
-        libpqxx-dev libpq-dev \
+        libpqxx-dev libcpp-httplib-dev nlohmann-json3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /
@@ -23,4 +23,4 @@ COPY --from=build /build/acs /app/acs
 
 WORKDIR /app
 
-ENTRYPOINT ["acs"]
+ENTRYPOINT ["./acs"]
