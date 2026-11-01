@@ -8,10 +8,11 @@
 
 int main() {
     std::string db_host = getenv("DB_HOST");
+    std::string db_port = getenv("DB_PORT");
     std::string db_name = getenv("DB_NAME");
-    std::string username = getenv("USERNAME");
-    std::string password = getenv("PASSWORD");
-    auto con = std::make_shared<pqxx::connection>("host=" + db_host + " dbname=" + db_name + " user=" + username + " pass=" + password);
+    std::string username = getenv("DB_USERNAME");
+    std::string password = getenv("DB_PASSWORD");
+    auto con = std::make_shared<pqxx::connection>("host=" + db_host + " port=" + db_port + " dbname=" + db_name + " user=" + username + " password=" + password);
 
     auto server = std::make_shared<httplib::Server>();
 

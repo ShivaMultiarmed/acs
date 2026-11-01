@@ -20,13 +20,22 @@ add_executable(${PROJECT_NAME} main.cpp
         repository/ObjectRepository.cpp
         repository/ObjectRepository.h)
 
-find_package(Threads REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+if(WIN32)
+    # локально: vcpkg + libpqxx из исходников
+    add_subdirectory(third_party/libpqxx)
+    target_link_libraries(${PROJECT_NAME} PRIVATE pqxx_static)
 
-find_package(PkgConfig MODULE REQUIRED)
-pkg_check_modules(PQXX REQUIRED IMPORTED_TARGET libpqxx)
-pkg_check_modules(HTTPLIB REQUIRED IMPORTED_TARGET cpp-httplib)
-target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::PQXX PkgConfig::HTTPLIB)
+    find_package(httplib CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE httplib::httplib)
+else()
+    # Docker / Ubuntu: системные пакеты через pkg-config
+    find_package(Threads REQUIRED)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PQXX REQUIRED IMPORTED_TARGET libpqxx)
+    pkg_check_modules(HTTPLIB REQUIRED IMPORTED_TARGET cpp-httplib)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+            PkgConfig::PQXX PkgConfig::HTTPLIB Threads::Threads)
+endif()
 
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
