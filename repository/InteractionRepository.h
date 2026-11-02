@@ -4,7 +4,7 @@
 #include "pqxx/connection.hxx"
 
 enum class InteractionFailure : int {
-    NOT_AUTHENTICATED, NOT_FOUND, FORBIDDEN, NOT_EXPECTED
+    NONE, NOT_AUTHENTICATED, NOT_FOUND, FORBIDDEN, NOT_EXPECTED
 };
 
 enum class InteractionType : int {
