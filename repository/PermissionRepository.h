@@ -8,8 +8,8 @@ class PermissionRepository {
 public:
     explicit PermissionRepository(std::shared_ptr<pqxx::connection> con);
     bool has_permission(
-        const uint64_t userId,
-        const uint64_t objectId,
+        const uint64_t worker_id,
+        const uint64_t object_id,
         const std::string code
         ) const;
 };

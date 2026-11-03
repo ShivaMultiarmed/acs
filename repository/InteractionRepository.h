@@ -11,7 +11,7 @@ enum class InteractionType : int {
     ENTER, EXIT
 };
 
-struct Interaction {
+struct  Interaction {
     uint64_t id, worker_id, object_id, date_time;
     InteractionType type;
     InteractionFailure failure;
@@ -24,8 +24,8 @@ public:
     explicit InteractionRepository(std::shared_ptr<pqxx::connection> con);
     Interaction& interact(Interaction &interaction) const;
     Interaction getLastByUserIdAndObjectId(
-        const uint64_t userId,
-        const uint64_t objectId
+        const uint64_t worker_id,
+        const uint64_t object_id
         ) const;
 
 };

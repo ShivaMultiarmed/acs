@@ -1,6 +1,7 @@
 #include "InteractionService.h"
 
 #include <iomanip>
+#include <iostream>
 
 #include "../utils.h"
 
@@ -15,30 +16,27 @@ InteractionService::InteractionService(
     object_repository(std::move(object_repository)) {
 }
 
-Interaction &InteractionService::interact(
-    uint64_t worker_id,
-    uint64_t object_id,
-    std::string code
-) const {
+Interaction &InteractionService::interact(Interaction& interaction, std::string code) const {
     auto now = std::chrono::system_clock::now();
-    Interaction interaction{}, last_interaction;
-    interaction.worker_id = worker_id;
-    interaction.object_id = object_id;
+    Interaction last_interaction;
     interaction.date_time = to_millis(now);
-    if (!worker_repository->exists_by_id(worker_id)) {
+    if (!worker_repository->exists_by_id(interaction.worker_id)) {
         interaction.failure = InteractionFailure::NOT_AUTHENTICATED;
         goto proceed;
     }
-    if (!object_repository->exists_by_id(object_id)) {
+    if (!object_repository->exists_by_id(interaction.object_id)) {
         interaction.failure = InteractionFailure::NOT_FOUND;
         goto proceed;
     }
-    if (!permission_repo->has_permission(worker_id, object_id, std::move(code))) {
+    if (!permission_repo->has_permission(interaction.worker_id, interaction.object_id, std::move(code))) {
+        std::cout << "No permission." << std::endl;
         interaction.failure = InteractionFailure::FORBIDDEN;
         goto proceed;
     }
-    last_interaction = interaction_repo->getLastByUserIdAndObjectId(worker_id, object_id);
-    if (interaction.type == last_interaction.type) {
+    last_interaction = interaction_repo->getLastByUserIdAndObjectId(interaction.worker_id, interaction.object_id);
+    if (last_interaction.id && interaction.type == last_interaction.type
+        || !last_interaction.id && interaction.type == InteractionType::EXIT) {
+        std::cout << "Invalid interaction." << std::endl;
         interaction.failure = InteractionFailure::FORBIDDEN;
         goto proceed;
     }

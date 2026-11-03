@@ -17,9 +17,5 @@ public:
         std::shared_ptr<ObjectRepository> object_repository
     );
 
-    Interaction &interact(
-        uint64_t worker_id,
-        uint64_t object_id,
-        std::string code
-    ) const;
+    Interaction &interact(Interaction& interaction, std::string code) const;
 };

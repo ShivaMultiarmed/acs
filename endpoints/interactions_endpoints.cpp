@@ -1,26 +1,35 @@
 #include "interaction_endpoints.h"
 #include <nlohmann/json.hpp>
 
+#include "../utils.h"
 #include "../service/InteractionService.h"
 
 using json = nlohmann::json;
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Interaction, id, worker_id, object_id, date_time, type, failure)
+// NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Interaction, id, worker_id, object_id, date_time, type, failure)
 
 void set_up_interaction_endpoints(
     std::shared_ptr<httplib::Server> server,
     std::shared_ptr<InteractionService> interactionService
 ) {
     server->Post("/interactions",[interactionService](const httplib::Request &request, httplib::Response &response) {
-        uint64_t workerId = stoll(request.get_param_value("worked_id"));
-        uint64_t objectId = stoll(request.get_param_value("object_id"));
-        std::cout << "Got worker id = " << workerId << " and object id = " << objectId << "\n";
-        std::string code = request.get_param_value("code");
-        std::cout << "Received the code: " << code << "\n";
-        Interaction &interaction = interactionService ->interact(workerId, objectId, code);
-        json responseBody = interaction; // transforms struct into JSON implicitly
-        response.set_content(responseBody.dump(), "application/json");
+        json body = json::parse(request.body, nullptr, false, true);
+        if (body.is_discarded() || !body.is_object()) {
+            response.status = 404;
+            return;
+        }
+        if (!request.has_header("Authorization")) {
+            response.status = 401;
+            return;
+        }
+        try {
+            std::string code = request.get_header_value("Authorization");
+            Interaction interaction = to_interaction(std::move(body));
+            json response_body = to_json(interactionService -> interact(interaction, std::move(code)));
+            response.set_content(response_body.dump(), "application/json");
+        } catch (std::exception &e) {
+            response.status = 500;
+            response.set_content("Error occurred: " + std::string(e.what()), "text/plain");
+        }
     });
 }
-
-// json body = json::parse(request.body, nullptr, false, true);
