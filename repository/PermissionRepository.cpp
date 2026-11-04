@@ -14,8 +14,10 @@ bool PermissionRepository::has_permission(
     if (code.size() != 24) return false;
     pqxx::nontransaction transaction(*con);
     try {
-        pqxx::row row = transaction.exec_params1(
-            "SELECT code FROM permissions WHERE worker_id = $1 AND object_id = $2;", worker_id, object_id);
+        pqxx::row row = transaction.exec(
+            "SELECT code FROM permissions WHERE worker_id = $1 AND object_id = $2;",
+            pxxx::params{worker_id, object_id}
+            );
         auto codeHash = row["code"].as<std::string>(); // TODO: store real hash
         if (code != codeHash) throw std::runtime_error("");
         return true;

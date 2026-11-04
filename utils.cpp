@@ -4,7 +4,6 @@
 
 std::string to_string(const InteractionFailure failure) {
     switch (failure) {
-        case InteractionFailure::NONE: return "NONE";
         case InteractionFailure::NOT_AUTHENTICATED: return "NOT_AUTHENTICATED";
         case InteractionFailure::NOT_FOUND: return "NOT_FOUND";
         case InteractionFailure::FORBIDDEN: return "FORBIDDEN";
@@ -32,7 +31,7 @@ std::string toString(const std::chrono::time_point<std::chrono::system_clock> &p
 
 Interaction to_interaction(json data) {
     Interaction interaction{
-        0,
+        std::nullopt,
         data["worker_id"].get<uint64_t>(),
         data["object_id"].get<uint64_t>(),
         0,
@@ -53,12 +52,12 @@ std::string to_string(const InteractionType type) {
 
 json to_json(const Interaction &interaction) {
     return json::object({
-        {"id", interaction.id},
+        {"id", interaction.id.get()},
         {"worker_id", interaction.worker_id},
         {"object_id", interaction.object_id},
         {"date_time", interaction.date_time},
         {"type", to_string(interaction.type)},
-        {"failure", to_string(interaction.failure)}
+        {"failure", interaction.failure ? to_string(interaction.failure) : std::string("null")}
     });
 }
 
@@ -68,8 +67,12 @@ Interaction to_interaction(const pqxx::row &row) {
     interaction.worker_id = row["worker_id"].as<uint64_t>();
     interaction.object_id = row["object_id"].as<uint64_t>();
     interaction.date_time = to_millis(row["date_time"].as<std::string>());
+    interaction.failure = !row["failure"]
+        .as<std::optional<std::string>>()
+        .transform([](std::string s) {
+            return to_interaction_failure(std::move(s));
+        });
     interaction.type = to_interaction_type(row["interaction"].as<std::string>());
-    interaction.failure = to_interaction_failure(row["failure"].as<std::string>());
     return interaction;
 }
 

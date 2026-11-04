@@ -23,7 +23,8 @@ void set_up_interaction_endpoints(
             return;
         }
         try {
-            std::string code = request.get_header_value("Authorization");
+            const std::string auth_prefix = "Bearer ";
+            std::string code = request.get_header_value("Authorization").substr(auth_prefix.size());
             Interaction interaction = to_interaction(std::move(body));
             json response_body = to_json(interactionService -> interact(interaction, std::move(code)));
             response.set_content(response_body.dump(), "application/json");

@@ -23,10 +23,10 @@ docker compose up -d
 
 `POST /interactions` - добавляет запись о взаимодействии с объектами
 
-Принимает `application/x-www-urlencoded` в качестве тела запроса. Требует три ключа:
+Требует заголовок `Authorization: Bearer <code>` и `json`-объект в качестве тела запроса с полями:
 - `worker_id` - идентификатор сотрудника
 - `object_id` - идентификатор объекта, к которому нужно получить доступ
-- `code` - код доступа к объекту
+- `type` - тип взаимодействия, например, `ENTER` или `EXIT`
 
 Например, `worker_id=1&object_id=1&code=kRYc7tQZfSWKHvL4wpxPrA==`
 

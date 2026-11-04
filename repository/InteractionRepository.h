@@ -2,19 +2,21 @@
 #include <chrono>
 #include <memory>
 #include "pqxx/connection.hxx"
+#include <optional>
 
 enum class InteractionFailure : int {
-    NONE, NOT_AUTHENTICATED, NOT_FOUND, FORBIDDEN, NOT_EXPECTED
+    NOT_AUTHENTICATED, NOT_FOUND, FORBIDDEN, NOT_EXPECTED
 };
 
 enum class InteractionType : int {
     ENTER, EXIT
 };
 
-struct  Interaction {
-    uint64_t id, worker_id, object_id, date_time;
+struct Interaction {
+    std::optional<uint64_t> id = std::nullopt, date_time = std::nullopt;
+    uint64_t worker_id, object_id;
     InteractionType type;
-    InteractionFailure failure;
+    std::optional<InteractionFailure> failure = std::nullopt;
 };
 
 class InteractionRepository {
@@ -23,7 +25,7 @@ class InteractionRepository {
 public:
     explicit InteractionRepository(std::shared_ptr<pqxx::connection> con);
     Interaction& interact(Interaction &interaction) const;
-    Interaction getLastByUserIdAndObjectId(
+    std::optional<Interaction> getLastByUserIdAndObjectId(
         const uint64_t worker_id,
         const uint64_t object_id
         ) const;

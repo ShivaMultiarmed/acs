@@ -20,14 +20,14 @@ Interaction &InteractionRepository::interact(Interaction &interaction) const {
     return interaction;
 }
 
-Interaction InteractionRepository::getLastByUserIdAndObjectId(
+std::optional<Interaction> InteractionRepository::getLastByUserIdAndObjectId(
     const uint64_t worker_id,
     const uint64_t object_id
 ) const {
     pqxx::nontransaction non(*con);
     std::string query = R"(SELECT id, worker_id, object_id, date_time, interaction, failure FROM interactions
     WHERE worker_id = $1 AND object_id = $2 ORDER BY date_time DESC;)";
-    pqxx::result rows = non.exec_params(query, worker_id, object_id);
-    if (rows.empty()) return {};
+    pqxx::result rows = non.exec(query, pqxx::params{ worker_id, object_id });
+    if (rows.empty()) return std::nullopt;
     return to_interaction(rows[0]);
 }

@@ -18,7 +18,7 @@ InteractionService::InteractionService(
 
 Interaction &InteractionService::interact(Interaction& interaction, std::string code) const {
     auto now = std::chrono::system_clock::now();
-    Interaction last_interaction;
+    std::optional<Interaction> last_interaction;
     interaction.date_time = to_millis(now);
     if (!worker_repository->exists_by_id(interaction.worker_id)) {
         interaction.failure = InteractionFailure::NOT_AUTHENTICATED;
@@ -34,8 +34,8 @@ Interaction &InteractionService::interact(Interaction& interaction, std::string 
         goto proceed;
     }
     last_interaction = interaction_repo->getLastByUserIdAndObjectId(interaction.worker_id, interaction.object_id);
-    if (last_interaction.id && interaction.type == last_interaction.type
-        || !last_interaction.id && interaction.type == InteractionType::EXIT) {
+    if (last_interaction && interaction.type == last_interaction.get().type
+        || !last_interaction && interaction.type == InteractionType::EXIT) {
         std::cout << "Invalid interaction." << std::endl;
         interaction.failure = InteractionFailure::FORBIDDEN;
         goto proceed;
