@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <regex>
+
 #include "repository/InteractionRepository.h"
 
 std::string to_string(const InteractionFailure failure) {
@@ -30,14 +32,14 @@ std::string toString(const std::chrono::time_point<std::chrono::system_clock> &p
 }
 
 Interaction to_interaction(json data) {
-    Interaction interaction{
+    return {
         std::nullopt,
+        0,
         data["worker_id"].get<uint64_t>(),
         data["object_id"].get<uint64_t>(),
-        0,
-        to_interaction_type(data["interaction"].get<std::string>())
+        to_interaction_type(data["interaction"].get<std::string>()),
+        std::nullopt
     };
-    return interaction;
 }
 
 InteractionType to_interaction_type(const std::string type) {
@@ -52,12 +54,12 @@ std::string to_string(const InteractionType type) {
 
 json to_json(const Interaction &interaction) {
     return json::object({
-        {"id", interaction.id.get()},
+        {"id", interaction.id ? std::to_string(*interaction.id) : "null"},
         {"worker_id", interaction.worker_id},
         {"object_id", interaction.object_id},
         {"date_time", interaction.date_time},
         {"type", to_string(interaction.type)},
-        {"failure", interaction.failure ? to_string(interaction.failure) : std::string("null")}
+        {"failure", interaction.failure ? to_string(*interaction.failure) : std::string("null")}
     });
 }
 
@@ -67,7 +69,7 @@ Interaction to_interaction(const pqxx::row &row) {
     interaction.worker_id = row["worker_id"].as<uint64_t>();
     interaction.object_id = row["object_id"].as<uint64_t>();
     interaction.date_time = to_millis(row["date_time"].as<std::string>());
-    interaction.failure = !row["failure"]
+    interaction.failure = row["failure"]
         .as<std::optional<std::string>>()
         .transform([](std::string s) {
             return to_interaction_failure(std::move(s));
@@ -77,7 +79,6 @@ Interaction to_interaction(const pqxx::row &row) {
 }
 
 InteractionFailure to_interaction_failure(const std::string failure) {
-    if (failure == "NONE") return InteractionFailure::NONE;
     if (failure == "NOT_AUTHENTICATED") return InteractionFailure::NOT_AUTHENTICATED;
     if (failure == "NOT_FOUND") return InteractionFailure::NOT_FOUND;
     if (failure == "FORBIDDEN") return InteractionFailure::FORBIDDEN;
@@ -85,15 +86,16 @@ InteractionFailure to_interaction_failure(const std::string failure) {
 }
 
 std::uint64_t to_millis(const std::string& date_time) {
-    std::tm tm{};
-    std::istringstream in(date_time);
-    in >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S+00");
-    if (in.fail())
-        throw std::invalid_argument("bad datetime: " + date_time);
-    #ifdef _WIN32
-    std::time_t t = _mkgmtime(&tm);   // tm как UTC → epoch (Windows)
-    #else
-    std::time_t t = timegm(&tm);      // то же на Linux
-    #endif
-    return static_cast<uint64_t>(t);
+    std::istringstream iss{date_time};
+    std::chrono::sys_time<std::chrono::milliseconds> tp;
+
+    iss >> std::chrono::parse("%FT%T%z", tp);
+
+    if (iss.fail()) {
+        throw std::runtime_error("Failed to parse ISO string");
+    }
+
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        tp.time_since_epoch()
+    ).count();
 }

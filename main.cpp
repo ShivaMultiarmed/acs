@@ -12,11 +12,12 @@ int main() {
     std::string db_name = getenv("DB_NAME");
     std::string username = getenv("DB_USERNAME");
     std::string password = getenv("DB_PASSWORD");
-    auto con = std::make_shared<pqxx::connection>("host=" + db_host + " port=" + db_port + " dbname=" + db_name + " user=" + username + " password=" + password);
+    std::string con_string = std::format("host={} port={} dbname={} user={} password={}", db_host, db_port, db_name, username, password);
+    auto con = std::make_shared<pqxx::connection>(con_string);
 
-    auto server = std::make_shared<httplib::Server>();
+    std::shared_ptr<httplib::Server> server(new httplib::Server());
 
-    auto worker_repository = std::make_shared<WorkerRepository>(con);
+    std::shared_ptr<WorkerRepository> worker_repository(new WorkerRepository(con));
     auto interaction_repository = std::make_shared<InteractionRepository>(con);
     auto permission_repository = std::make_shared<PermissionRepository>(con);
     auto object_repository = std::make_shared<ObjectRepository>(con);
@@ -26,7 +27,7 @@ int main() {
         interaction_repository,
         worker_repository,
         object_repository
-        );
+    );
 
     set_up_interaction_endpoints(server, interaction_service);
 

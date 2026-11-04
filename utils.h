@@ -2,35 +2,29 @@
 
 #include <string>
 #include <nlohmann/json.hpp>
+#include <pqxx/row.hxx>
 
-#include "pqxx/row.hxx"
 #include "repository/InteractionRepository.h"
 
 using json = nlohmann::json;
 
-struct Interaction;
-enum class InteractionFailure;
-
-template <typename T>
-const char* nullify(T* value);
-
 Interaction to_interaction(const pqxx::row &row);
 
-std::string to_string(const InteractionFailure failure);
+std::string to_string(InteractionFailure failure);
 
-InteractionFailure to_interaction_failure(const std::string failure);
+InteractionFailure to_interaction_failure(std::string failure);
 
 uint64_t to_millis(const std::chrono::time_point<std::chrono::system_clock> &point);
 
-std::string toDateTimeString(const uint64_t millis);
+std::string to_date_time_string(uint64_t millis);
 
-std::string toString(const std::chrono::time_point<std::chrono::system_clock> &point);
+std::string to_string(const std::chrono::time_point<std::chrono::system_clock> &point);
 
 Interaction to_interaction(json data);
 
-InteractionType to_interaction_type(const std::string type);
+InteractionType to_interaction_type(std::string type);
 
-std::string to_string(const InteractionType type);
+std::string to_string(InteractionType type);
 
 json to_json (const Interaction &interaction);
 

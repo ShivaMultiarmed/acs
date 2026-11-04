@@ -22,12 +22,13 @@ struct Interaction {
 class InteractionRepository {
     std::shared_ptr<pqxx::connection> con;
     std::chrono::system_clock clock;
+    static constexpr char interact_query[] = "interact_query";
+    static constexpr char last_by_user_and_object[] = "last_by_user_and_object";
 public:
     explicit InteractionRepository(std::shared_ptr<pqxx::connection> con);
     Interaction& interact(Interaction &interaction) const;
     std::optional<Interaction> getLastByUserIdAndObjectId(
-        const uint64_t worker_id,
-        const uint64_t object_id
-        ) const;
+        uint64_t worker_id,
+        uint64_t object_id ) const;
 
 };
