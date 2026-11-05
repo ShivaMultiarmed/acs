@@ -28,7 +28,8 @@ add_executable(${PROJECT_NAME} main.cpp
         endpoints/middleware.h
         endpoints/middleware.cpp
         service/WorkerService.cpp
-        service/WorkerService.h)
+        service/WorkerService.h
+        controller_server/controller_server.c)
 
 find_package(libpqxx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
