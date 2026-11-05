@@ -4,7 +4,6 @@
 
 struct Permission {
     uint64_t worker_id, object_id;
-    std::optional<std::string> code;
 };
 
 class PermissionRepository {
@@ -13,5 +12,8 @@ class PermissionRepository {
     static constexpr char check_permission_query[] = "check_permission_query";
 public:
     explicit PermissionRepository(std::shared_ptr<pqxx::connection> con);
-    bool has_permission(const Permission& permission) const;
+    bool has_permission(
+        const Permission& permission,
+        const std::string& code
+    ) const;
 };

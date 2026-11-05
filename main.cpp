@@ -2,6 +2,7 @@
 
 #include "endpoints/interaction_endpoints.h"
 #include "repository/InteractionRepository.h"
+#include "repository/KeyRepository.h"
 #include "repository/PermissionRepository.h"
 #include "repository/WorkerRepository.h"
 #include "service/InteractionService.h"
@@ -17,6 +18,7 @@ int main() {
 
     std::shared_ptr<httplib::Server> server(new httplib::Server());
 
+    std::shared_ptr<KeyRepository> key_repository(new KeyRepository(con));
     std::shared_ptr<WorkerRepository> worker_repository(new WorkerRepository(con));
     auto interaction_repository = std::make_shared<InteractionRepository>(con);
     auto permission_repository = std::make_shared<PermissionRepository>(con);

@@ -10,10 +10,19 @@ CREATE TABLE objects (
     description VARCHAR(500) NULL
 );
 
+CREATE TABLE "keys" (
+    id BIGINT PRIMARY KEY,
+    worker_id BIGINT NOT NULL,
+    expires_at TIMESTAMPZ NOT NULL,
+    is_active BOOLEAN NOT NULL,
+    CONSTRAINT "key_to_worker"
+        FOREIGN KEY "worker_id"
+        REFERENCES "workers" ("id")
+);
+
 CREATE TABLE "permissions" (
     worker_id BIGINT NOT NULL,
     object_id BIGINT NOT NULL,
-    code CHAR(24) NOT NULL UNIQUE
     PRIMARY KEY (worker_id, object_id),
     CONSTRAINT "permissions_object_id"
         FOREIGN KEY (object_id)
@@ -26,7 +35,7 @@ CREATE TABLE "permissions" (
 );
 
 CREATE TYPE INTERACTION_TYPE AS ENUM ('ENTER', 'EXIT');
-CREATE TYPE INTERACTION_FAILURE AS ENUM ('NONE', 'NOT_AUTHENTICATED', 'FORBIDDEN', 'NOT_FOUND', 'NOT_EXPECTED');
+CREATE TYPE INTERACTION_FAILURE AS ENUM ('NOT_AUTHENTICATED', 'FORBIDDEN', 'NOT_FOUND', 'NOT_EXPECTED');
 
 CREATE TABLE "interactions" (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -34,7 +43,7 @@ CREATE TABLE "interactions" (
     object_id BIGINT NOT NULL,
     date_time TIMESTAMPTZ NOT NULL,
     interaction INTERACTION_TYPE NOT NULL,
-    failure INTERACTION_FAILURE NOT NULL,
+    failure INTERACTION_FAILURE NULL,
     CONSTRAINT "interactions_worker_id"
         FOREIGN KEY (worker_id)
         REFERENCES "workers"("id")
