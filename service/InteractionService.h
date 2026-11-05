@@ -19,6 +19,5 @@ public:
         std::shared_ptr<ObjectRepository> object_repository,
         std::shared_ptr<KeyRepository> key_repository
     );
-
     Interaction &interact(Interaction& interaction, std::string code) const;
 };

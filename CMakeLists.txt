@@ -21,10 +21,14 @@ add_executable(${PROJECT_NAME} main.cpp
         repository/ObjectRepository.h
         repository/KeyRepository.cpp
         repository/KeyRepository.h
-        KeyService.cpp
-        KeyService.h
+        repository/KeyService.cpp
+        repository/KeyService.h
         repository/DbPool.cpp
-        repository/DbPool.h)
+        repository/DbPool.h
+        endpoints/middleware.h
+        endpoints/middleware.cpp
+        service/WorkerService.cpp
+        service/WorkerService.h)
 
 find_package(libpqxx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)

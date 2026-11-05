@@ -1,7 +1,7 @@
 #include "interaction_endpoints.h"
 #include <nlohmann/json.hpp>
 
-#include "../KeyService.h"
+#include "../repository/KeyService.h"
 #include "../utils.h"
 #include "../service/InteractionService.h"
 
@@ -40,7 +40,7 @@ void set_up_interaction_endpoints(
             }
             Interaction interaction = {
                 std::nullopt,
-                std::nullopt,   
+                std::nullopt,
                 worker_id.value(),
                 interaction_request.object_id,
                 interaction_request.type
