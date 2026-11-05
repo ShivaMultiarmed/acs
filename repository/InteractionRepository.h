@@ -4,6 +4,8 @@
 #include "pqxx/connection.hxx"
 #include <optional>
 
+#include "DbPool.h"
+
 enum class InteractionFailure : int {
     NOT_AUTHENTICATED, NOT_FOUND, FORBIDDEN, NOT_EXPECTED
 };
@@ -20,12 +22,12 @@ struct Interaction {
 };
 
 class InteractionRepository {
-    std::shared_ptr<pqxx::connection> con;
+    std::shared_ptr<DbPool> pool;
     std::chrono::system_clock clock;
     static constexpr char interact_query[] = "interact_query";
     static constexpr char last_by_user_and_object[] = "last_by_user_and_object";
 public:
-    explicit InteractionRepository(std::shared_ptr<pqxx::connection> con);
+    explicit InteractionRepository(std::shared_ptr<DbPool> pool);
     Interaction& interact(Interaction &interaction) const;
     std::optional<Interaction> getLastByUserIdAndObjectId(
         uint64_t worker_id,

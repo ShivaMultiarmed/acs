@@ -4,19 +4,23 @@
 #include "pqxx/nontransaction.hxx"
 
 InteractionRepository::InteractionRepository(
-    std::shared_ptr<pqxx::connection> con
-) : con(con) {
+    std::shared_ptr<DbPool> pool
+) : pool(pool) {
     clock = std::chrono::system_clock();
-    con -> prepare(interact_query,
+    for (uint8_t i = 0; i < pool->con_count; ++i)
+    {
+        const pqxx::connection &con = pool -> get_con();
+        con.prepare(interact_query,
         "INSERT INTO interactions (worker_id, object_id, date_time, interaction, failure)"
         " VALUES ($1, $2, $3, $4, $5) RETURNING id;"
     );
-    con -> prepare(last_by_user_and_object, "SELECT id, worker_id, object_id, date_time, interaction, failure FROM interactions"
-    "WHERE worker_id = $1 AND object_id = $2 ORDER BY date_time DESC;");
+        con.prepare(last_by_user_and_object, "SELECT id, worker_id, object_id, date_time, interaction, failure FROM interactions"
+        "WHERE worker_id = $1 AND object_id = $2 ORDER BY date_time DESC;");
+    }
 }
 
 Interaction &InteractionRepository::interact(Interaction &interaction) const {
-    pqxx::nontransaction non(*con);
+    pqxx::nontransaction non(pool -> get_con());
     const std::string now = to_date_time_string(interaction.date_time.value());
     pqxx::field id_field = non.exec(
         pqxx::prepped{interact_query},
@@ -36,7 +40,7 @@ std::optional<Interaction> InteractionRepository::getLastByUserIdAndObjectId(
     const uint64_t worker_id,
     const uint64_t object_id
 ) const {
-    pqxx::nontransaction non(*con);
+    pqxx::nontransaction non(pool -> get_con());
     return non.exec(
         pqxx::prepped{last_by_user_and_object},
         pqxx::params{worker_id, object_id}

@@ -40,7 +40,7 @@ void set_up_interaction_endpoints(
             }
             Interaction interaction = {
                 std::nullopt,
-                std::nullopt,
+                std::nullopt,   
                 worker_id.value(),
                 interaction_request.object_id,
                 interaction_request.type

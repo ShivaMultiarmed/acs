@@ -1,18 +1,18 @@
 CREATE TABLE "workers" (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE objects (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     description VARCHAR(500) NULL
 );
 
 CREATE TABLE "keys" (
-    id BIGINT PRIMARY KEY,
-    worker_id BIGINT NOT NULL,
+    id INTEGER PRIMARY KEY,
+    worker_id INTEGER NOT NULL,
     expires_at TIMESTAMPZ NOT NULL,
     is_active BOOLEAN NOT NULL,
     CONSTRAINT "key_to_worker"
@@ -20,9 +20,11 @@ CREATE TABLE "keys" (
         REFERENCES "workers" ("id")
 );
 
+CREATE INDEX "worker_keys" ON keys(worker_id);
+
 CREATE TABLE "permissions" (
-    worker_id BIGINT NOT NULL,
-    object_id BIGINT NOT NULL,
+    worker_id INTEGER NOT NULL,
+    object_id SMALLINT NOT NULL,
     PRIMARY KEY (worker_id, object_id),
     CONSTRAINT "permissions_object_id"
         FOREIGN KEY (object_id)
@@ -39,8 +41,8 @@ CREATE TYPE INTERACTION_FAILURE AS ENUM ('NOT_AUTHENTICATED', 'FORBIDDEN', 'NOT_
 
 CREATE TABLE "interactions" (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    worker_id BIGINT NULL,
-    object_id BIGINT NOT NULL,
+    worker_id INTEGER NULL,
+    object_id SMALLINT NOT NULL,
     date_time TIMESTAMPTZ NOT NULL,
     interaction INTERACTION_TYPE NOT NULL,
     failure INTERACTION_FAILURE NULL,
