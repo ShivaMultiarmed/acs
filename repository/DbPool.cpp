@@ -1,5 +1,7 @@
 #include "DbPool.h"
 
+#include <pqxx/transaction.hxx>
+
 DbPool::DbPool(
     std::string username,
     std::string db,
@@ -21,7 +23,7 @@ DbPool::DbPool(
     }
 }
 
-const pqxx::connection& DbPool::get_con()
+pqxx::connection& DbPool::get_con()
 {
     uint8_t cur = cur_con.load();
     cur_con.store((cur + 1) % cons.size());

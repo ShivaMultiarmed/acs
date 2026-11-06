@@ -16,7 +16,7 @@ add_executable(${PROJECT_NAME} main.cpp
         service/InteractionService.cpp
         service/InteractionService.h
         endpoints/interaction_endpoints.h
-        endpoints/interactions_endpoints.cpp
+        endpoints/interaction_endpoints.cpp
         repository/ObjectRepository.cpp
         repository/ObjectRepository.h
         repository/KeyRepository.cpp
@@ -29,7 +29,11 @@ add_executable(${PROJECT_NAME} main.cpp
         endpoints/middleware.cpp
         service/WorkerService.cpp
         service/WorkerService.h
-        controller_server/controller_server.c)
+        controller_server/controller_server.c
+        utils/key_utils.h
+        utils/key_utils.cpp
+        endpoints/key_endpoints.h
+        endpoints/key_endpoints.cpp)
 
 find_package(libpqxx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)

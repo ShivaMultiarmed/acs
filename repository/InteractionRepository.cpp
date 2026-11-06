@@ -19,7 +19,7 @@ InteractionRepository::InteractionRepository(
     }
 }
 
-Interaction &InteractionRepository::interact(Interaction &interaction) const {
+Interaction InteractionRepository::interact(const Interaction &interaction) const {
     pqxx::nontransaction non(pool -> get_con());
     const std::string now = to_date_time_string(interaction.date_time.value());
     pqxx::field id_field = non.exec(
@@ -32,7 +32,8 @@ Interaction &InteractionRepository::interact(Interaction &interaction) const {
             interaction.failure.transform([](const InteractionFailure &failure){ return to_string(failure); })
         }
     ).one_field();
-    interaction.id = id_field.as<uint64_t>();
+    Interaction inserted_interaction = interaction;
+    inserted_interaction.id = id_field.as<uint64_t>();
     return interaction;
 }
 

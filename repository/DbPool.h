@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <pqxx/connection.hxx>
+#include <pqxx/transaction.hxx>
 
 class DbPool
 {
@@ -17,5 +18,5 @@ public:
         uint8_t con_count = 4
         );
     const uint8_t con_count;
-    const pqxx::connection &get_con();
+    pqxx::connection &get_con();
 };

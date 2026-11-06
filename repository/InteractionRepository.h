@@ -28,7 +28,7 @@ class InteractionRepository {
     static constexpr char last_by_user_and_object[] = "last_by_user_and_object";
 public:
     explicit InteractionRepository(std::shared_ptr<DbPool> pool);
-    Interaction& interact(Interaction &interaction) const;
+    Interaction interact(const Interaction &interaction) const;
     std::optional<Interaction> getLastByUserIdAndObjectId(
         uint64_t worker_id,
         uint64_t object_id ) const;
